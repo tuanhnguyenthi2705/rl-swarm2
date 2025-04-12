@@ -35,9 +35,6 @@ standard-step-block: &standard-step
     - <<: *aws-secrets
 
 steps:
-  # Set the image tag so if this workflow is run on main, the images built will be tagged
-  # with either `pr-<num>` or `main`. Our agent has a hook that can set env variables in all
-  # downstream jobs just by prepending some metadata with "env-"
   - label: "Set Image Tag Suffix"
     agents:
       queue: default
@@ -52,29 +49,28 @@ steps:
 
   - group: ":docker: Build Docker Images"
     steps:
-      - label: "Build RL-Swarm Node Image"
+      - label: "Build RL-Swarm2 Node Image"
         agents:
           queue: default
         command: |
           .buildkite/tools/build-oci-image.sh \
-            --output type=image,push=true,name=europe-docker.pkg.dev/gensyn-main/registry/rl-swarm:$$IMAGE_TAG \
+            --output type=image,push=true,name=europe-docker.pkg.dev/gensyn-main/registry/rl-swarm2:$$IMAGE_TAG \
             --local dockerfile=/workdir/private-containerfiles/swarm-node \
             --local context=/workdir \
             --opt filename=./swarm-node.containerfile \
-            --export-cache type=registry,ref=europe-docker.pkg.dev/gensyn-main/registry/rl-swarm:cache-$$IMAGE_TAG,image-manifest=true,mode=max \
-            --import-cache type=registry,ref=europe-docker.pkg.dev/gensyn-main/registry/rl-swarm:cache-$$IMAGE_TAG \
-            --import-cache type=registry,ref=europe-docker.pkg.dev/gensyn-main/registry/rl-swarm:cache-main
+            --export-cache type=registry,ref=europe-docker.pkg.dev/gensyn-main/registry/rl-swarm2:cache-$$IMAGE_TAG,image-manifest=true,mode=max \
+            --import-cache type=registry,ref=europe-docker.pkg.dev/gensyn-main/registry/rl-swarm2:cache-$$IMAGE_TAG \
+            --import-cache type=registry,ref=europe-docker.pkg.dev/gensyn-main/registry/rl-swarm2:cache-main
 
-      - label: "Build RL-Swarm UI Image"
+      - label: "Build RL-Swarm2 UI Image"
         agents:
           queue: default
         command: |
           .buildkite/tools/build-oci-image.sh \
-            --output type=image,push=true,name=europe-docker.pkg.dev/gensyn-main/registry/rl-swarm-www:$$IMAGE_TAG \
+            --output type=image,push=true,name=europe-docker.pkg.dev/gensyn-main/registry/rl-swarm2-www:$$IMAGE_TAG \
             --local dockerfile=/workdir \
             --local context=/workdir \
             --opt filename=./Dockerfile.webserver \
-            --export-cache type=registry,ref=europe-docker.pkg.dev/gensyn-main/registry/rl-swarm-www:cache-$$IMAGE_TAG,image-manifest=true,mode=max \
-            --import-cache type=registry,ref=europe-docker.pkg.dev/gensyn-main/registry/rl-swarm-www:cache-$$IMAGE_TAG \
-            --import-cache type=registry,ref=europe-docker.pkg.dev/gensyn-main/registry/rl-swarm-www:cache-main
-
+            --export-cache type=registry,ref=europe-docker.pkg.dev/gensyn-main/registry/rl-swarm2-www:cache-$$IMAGE_TAG,image-manifest=true,mode=max \
+            --import-cache type=registry,ref=europe-docker.pkg.dev/gensyn-main/registry/rl-swarm2-www:cache-$$IMAGE_TAG \
+            --import-cache type=registry,ref=europe-docker.pkg.dev/gensyn-main/registry/rl-swarm2-www:cache-main
